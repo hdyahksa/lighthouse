@@ -1,131 +1,104 @@
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-/**
- * @fileoverview Checks to see if the aspect ratio of the images used on
- *   the page are equal to the aspect ratio of their display sizes. The
- *   audit will list all images that don't match with their display size
- *   aspect ratio.
- */
-
-
-import {Audit} from './audit.js';
-import UrlUtils from '../lib/url-utils.js';
-import * as i18n from '../lib/i18n/i18n.js';
-
-const UIStrings = {
-  /** Title of a Lighthouse audit that provides detail on the aspect ratios of all images on the page. This descriptive title is shown to users when all images use correct aspect ratios. */
-  title: 'Displays images with correct aspect ratio',
-  /** Title of a Lighthouse audit that provides detail on the aspect ratios of all images on the page. This descriptive title is shown to users when not all images use correct aspect ratios. */
-  failureTitle: 'Displays images with incorrect aspect ratio',
-  /** Description of a Lighthouse audit that tells the user why they should maintain the correct aspect ratios for all images. This is displayed after a user expands the section to see more. No character length limits. The last sentence starting with 'Learn' becomes link text to additional documentation. */
-  description: 'Image display dimensions should match natural aspect ratio. ' +
-    '[Learn more about image aspect ratio](https://developer.chrome.com/docs/lighthouse/best-practices/image-aspect-ratio/).',
-  /**  Label for a column in a data table; entries in the column will be the numeric aspect ratio of an image as displayed in a web page. */
-  columnDisplayed: 'Aspect Ratio (Displayed)',
-  /**  Label for a column in a data table; entries in the column will be the numeric aspect ratio of the raw (actual) image. */
-  columnActual: 'Aspect Ratio (Actual)',
-};
-
-const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
-
-const THRESHOLD_PX = 2;
-
-/** @typedef {Required<LH.Artifacts.ImageElement>} WellDefinedImage */
-
-class ImageAspectRatio extends Audit {
-  /**
-   * @return {LH.Audit.Meta}
-   */
-  static get meta() {
-    return {
-      id: 'image-aspect-ratio',
-      title: str_(UIStrings.title),
-      failureTitle: str_(UIStrings.failureTitle),
-      description: str_(UIStrings.description),
-      requiredArtifacts: ['ImageElements'],
-    };
-  }
-
-  /**
-   * @param {WellDefinedImage} image
-   * @return {{url: string, node: LH.Audit.Details.NodeValue, displayedAspectRatio: string, actualAspectRatio: string, doRatiosMatch: boolean}}
-   */
-  static computeAspectRatios(image) {
-    const url = UrlUtils.elideDataURI(image.src);
-    const actualAspectRatio = image.naturalDimensions.width / image.naturalDimensions.height;
-    const displayedAspectRatio = image.displayedWidth / image.displayedHeight;
-
-    const targetDisplayHeight = image.displayedWidth / actualAspectRatio;
-    const targetDisplayWidth = image.displayedHeight * actualAspectRatio;
-
-    // Small rounding errors in aspect ratio can lead to large differences in target width/height
-    // if the aspect ratio is close to 0.
-    //
-    // In these cases, we should compare the smaller dimension because any rounding errors will
-    // affect that dimension less.
-    const doRatiosMatch = targetDisplayHeight < targetDisplayWidth
-      ? Math.abs(targetDisplayHeight - image.displayedHeight) < THRESHOLD_PX
-      : Math.abs(targetDisplayWidth - image.displayedWidth) < THRESHOLD_PX;
-
-    return {
-      url,
-      node: Audit.makeNodeItem(image.node),
-      displayedAspectRatio: `${image.displayedWidth} x ${image.displayedHeight}
-        (${displayedAspectRatio.toFixed(2)})`,
-      actualAspectRatio: `${image.naturalDimensions.width} x ${image.naturalDimensions.height}
-        (${actualAspectRatio.toFixed(2)})`,
-      doRatiosMatch,
-    };
-  }
-
-  /**
-   * @param {LH.Artifacts} artifacts
-   * @return {LH.Audit.Product}
-   */
-  static audit(artifacts) {
-    const images = artifacts.ImageElements;
-
-    /** @type {Array<{url: string, node: LH.Audit.Details.NodeValue, displayedAspectRatio: string, actualAspectRatio: string, doRatiosMatch: boolean}>} */
-    const results = [];
-    images.filter(image => {
-      // - filter out css background images since we don't have a reliable way to tell if it's a
-      //   sprite sheet, repeated for effect, etc
-      // - filter out images that don't have following properties:
-      //   networkRecord, width, height, `object-fit` property
-      // - filter all svgs as they have no natural dimensions to audit
-      // - filter out images that have falsy naturalWidth or naturalHeight
-      return !image.isCss &&
-        UrlUtils.guessMimeType(image.src) !== 'image/svg+xml' &&
-        image.naturalDimensions &&
-        image.naturalDimensions.height > 5 &&
-        image.naturalDimensions.width > 5 &&
-        image.displayedWidth &&
-        image.displayedHeight &&
-        image.computedStyles.objectFit === 'fill';
-    }).forEach(image => {
-      const wellDefinedImage = /** @type {WellDefinedImage} */ (image);
-      const processed = ImageAspectRatio.computeAspectRatios(wellDefinedImage);
-
-      if (!processed.doRatiosMatch) results.push(processed);
-    });
-
-    /** @type {LH.Audit.Details.Table['headings']} */
-    const headings = [
-      {key: 'node', valueType: 'node', label: ''},
-      {key: 'url', valueType: 'url', label: str_(i18n.UIStrings.columnURL)},
-      {key: 'displayedAspectRatio', valueType: 'text', label: str_(UIStrings.columnDisplayed)},
-      {key: 'actualAspectRatio', valueType: 'text', label: str_(UIStrings.columnActual)},
-    ];
-
-    return {
-      score: Number(results.length === 0),
-      details: Audit.makeTableDetails(headings, results),
-    };
-  }
+.navbar-brand img {
+       height: 168px;
+    width: 100%;
+    content: url(https://cdn.salla.sa/cdn-cgi/image/fit=scale-down,width=400,height=400,onerror=redirect,format=auto/oVql/j1zRTMxxyo6GX5M0ltChlNV5X1W238WXQmybUdsp.png);
 }
-
-export default ImageAspectRatio;
-export {UIStrings};
+.bottom-header span, .store-footer .footer-container p{
+color:#fff!important;
+font-size:1rem;
+padding :5px;
+}
+.bottom-header h3{
+color:black;}
+.bottom-header i{
+background:#312519!important;
+padding:10px;
+}
+.footer-container, .s-block--testimonials .transition-shadow, .s-product-card-content{
+font-size:1.25rem!important;
+background:#312519!important;}
+.s-block__title {h2, a {
+font-size:1.5rem;
+color:#fff !important;
+}}
+.s-products-slider-card.swiper-slide {
+width:57%;
+padding-left:0.3rem;
+padding-left:0.3rem;
+}
+.store-footer {
+font-size:1.25rem;
+padding-top:5px;
+border-top:15px solid gold!important;
+  clip-path: polygon(0% 5%, 50% 0%, 100% 5%, 100% 100%, 0% 100%)!important;
+.footer-top, .to-top, .footer-container{
+ border-radius:10px;
+ padding:5px!important;
+border-bottom:1px solid #fff!important;
+opacity:1;
+}  
+.footer-list a{
+border-bottom:0.2px solid #fff;
+ padding:2px; 
+ border-radius:10px;
+ color:white!important;
+ }
+a.\!flex.flex-col.items-center.justify-center.text-sm.leading-none.gap-2{
+background:no-repeat!important;
+color:white;
+}}
+.s-block__display-all:after, .s-cart-summary-total{ display:none!important;
+}
+.carousel-slider .s-slider-block__title-nav {
+ display: flex;
+}
+salla-slider .s-slider-block__title-nav button .s-slider-button-icon svg {
+fill:#ffd700!important;
+ opacity:1; 
+ font-size:4rem!important;
+}
+ .s-block__display-all, .store-footer i {
+border-radius:9999px;
+color:gold;
+border: 2px solid gold;
+ padding:10px!important;
+ font-size:1.4rem; 
+fill:gold !important;
+ }
+body#app{.container{
+padding-left:0rem!important;
+ padding-right:0rem!important;
+  }}
+.s-slider-block__title{ display:flex; justify-content:center;}
+.s-button-wide:hover {
+  background: #ffd700!important;
+  color: #000!important;
+}
+.s-button-wide {
+border:2px solid #ffd700;
+background:#000!important;
+color:#ffd700!important;
+font-size:1.4rem;
+}
+.banner-square img, .home-slider img, .s-block--fixed-banner img{
+border:2px solid gold!important;
+border-radius:5px;
+padding:auto;}
+.s-slider-block__title h2, .store-footer h3 {
+border:2px solid gold;
+padding:5px;
+ border-radius:9999px;
+font-size:1.5rem;
+}
+.btn--share, .btn--wishlist, .sicon-quote, h4{
+ fill: gold !important;
+ background:no-repeat!important;
+color:gold!important; 
+ opacity:1;
+}
+.to-top p, .footer-bottom p{
+   font-size:1.25rem;
+border:2px solid gold;
+padding:8px;
+ border-radius:9999px;
+  }
